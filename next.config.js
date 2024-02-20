@@ -2,4 +2,3 @@
 module.exports = {
     output: "export",
 };
-
