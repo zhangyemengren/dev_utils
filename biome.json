@@ -1,0 +1,11 @@
+{
+    "formatter": {
+        "enabled": true,
+        "formatWithErrors": false,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 80,
+        "lineEnding": "lf",
+        "ignore": [".next/", "node_modules/", "src-tauri/"]
+    }
+}
