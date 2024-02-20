@@ -1,0 +1,19 @@
+{
+  "name": "dev_utils",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "bunx --bun next dev -p 5432",
+    "build": "bunx --bun next build",
+    "start": "tauri dev",
+    "lint": "bunx --bun next lint"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.3",
+    "@tauri-apps/cli": "^1.5.10",
+    "next": "14.1.0",
+    "react": "^18",
+    "react-dom": "^18"
+  }
+}
