@@ -10,7 +10,12 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                <div data-tauri-drag-region="" className="w-full text-center cursor-pointer">title</div>
+                <div
+                    data-tauri-drag-region=""
+                    className="w-full text-center cursor-pointer"
+                >
+                    title
+                </div>
                 <Providers>{children}</Providers>
             </body>
         </html>
