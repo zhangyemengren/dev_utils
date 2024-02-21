@@ -12,7 +12,10 @@
     },
     "tauri": {
         "allowlist": {
-            "all": false
+            "all": false,
+            "window": {
+                "startDragging": true
+            }
         },
         "bundle": {
             "active": true,
@@ -58,8 +61,9 @@
                 "fullscreen": false,
                 "height": 600,
                 "resizable": true,
-                "title": "dev_utils",
-                "width": 800
+                "width": 800,
+                "hiddenTitle": true,
+                "titleBarStyle": "Overlay"
             }
         ]
     }
