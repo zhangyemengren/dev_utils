@@ -1,6 +1,6 @@
 "use client";
 import { useContext } from "react";
-import { Listbox, ListboxItem } from "@nextui-org/react";
+import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { DispatchContext } from "@/app/page";
 
 export default function SideBar() {
@@ -19,7 +19,7 @@ export default function SideBar() {
                     });
                 }}
             >
-                <ListboxItem key="new">菜单1</ListboxItem>
+                <ListboxItem key="textImport">菜单1</ListboxItem>
                 <ListboxItem key="copy">菜单2</ListboxItem>
                 <ListboxItem key="edit">菜单3</ListboxItem>
                 <ListboxItem

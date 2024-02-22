@@ -1,6 +1,5 @@
 "use client";
 
-// import Greet from "./greet";
 import { useEffect, createContext, useReducer } from "react";
 import SideBar from "../components/sidebar";
 import Playground from "../components/playground";
