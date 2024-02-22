@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ModelContext } from "@/app/page";
-import TextImport from "@/components/feature-text-import";
+import TextImport from "../text_import";
 
 export default function Playground() {
     const state = useContext(ModelContext);
