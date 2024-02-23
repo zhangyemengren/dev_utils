@@ -1,6 +1,7 @@
 "use client";
 import { useContext } from "react";
-import { Listbox, ListboxItem } from "@nextui-org/listbox";
+import { Listbox, ListboxItem } from "@nextui-org/react";
+import { Icon } from "@iconify-icon/react";
 import { DispatchContext } from "@/app/page";
 
 export default function SideBar() {
@@ -9,6 +10,7 @@ export default function SideBar() {
     return (
         <div className="w-[200px]">
             <Listbox
+                selectionMode="single"
                 aria-label="Actions"
                 onAction={(key) => {
                     dispatch({
@@ -19,16 +21,18 @@ export default function SideBar() {
                     });
                 }}
             >
-                <ListboxItem key="textImport">菜单1</ListboxItem>
-                <ListboxItem key="copy">菜单2</ListboxItem>
-                <ListboxItem key="edit">菜单3</ListboxItem>
                 <ListboxItem
-                    key="delete"
-                    className="text-danger"
-                    color="danger"
+                    key="textImport"
+                    startContent={
+                        <Icon
+                            icon="material-symbols:text-snippet-outline"
+                            width={18}
+                        />
+                    }
                 >
-                    危险操作
+                    文案导入
                 </ListboxItem>
+                <ListboxItem key="copy">菜单2</ListboxItem>
             </Listbox>
         </div>
     );
