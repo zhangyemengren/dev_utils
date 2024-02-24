@@ -1,9 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod text;
+mod merge_branch;
+mod text_import;
+mod update_dependency;
 
-use text::*;
+use text_import::*;
 
 fn main() {
     tauri::Builder::default()

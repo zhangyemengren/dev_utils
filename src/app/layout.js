@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
             <body>
                 <div
                     data-tauri-drag-region=""
-                    className="w-full text-center cursor-pointer"
+                    className="w-full text-center cursor-pointer bg-content1"
                 >
                     title
                 </div>

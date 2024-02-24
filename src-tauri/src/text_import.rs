@@ -8,8 +8,12 @@ pub fn import_by_html(value: &str) -> String {
         .select(&table_selector)
         .filter_map(filter_table)
         .collect();
-    println!("{:?}", tables.len());
-    format!("Hello, {}!", value)
+    if !tables.is_empty() {
+        println!("{:?} {:?} .", tables[0].t_type, tables[0].rows.len());
+        format!("{:?}", tables)
+    } else {
+        format!("No table found")
+    }
 }
 
 #[derive(Debug)]
@@ -17,6 +21,8 @@ enum TableType {
     Row,
     Col,
 }
+
+#[derive(Debug)]
 struct Table {
     t_type: TableType,
     rows: Vec<String>,

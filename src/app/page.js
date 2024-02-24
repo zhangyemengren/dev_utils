@@ -20,7 +20,7 @@ export default function Home() {
         });
     }, []);
     return (
-        <main className="flex">
+        <main className="flex h-full">
             <ModelContext.Provider value={state}>
                 <DispatchContext.Provider value={dispatch}>
                     <SideBar />

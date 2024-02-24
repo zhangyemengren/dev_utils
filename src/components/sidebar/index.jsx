@@ -8,7 +8,7 @@ export default function SideBar() {
     const dispatch = useContext(DispatchContext);
 
     return (
-        <div className="w-[200px]">
+        <div className="w-56 p-6 border-r-1 border-divider">
             <Listbox
                 selectionMode="single"
                 aria-label="Actions"
@@ -32,7 +32,25 @@ export default function SideBar() {
                 >
                     文案导入
                 </ListboxItem>
-                <ListboxItem key="copy">菜单2</ListboxItem>
+                <ListboxItem
+                    key="updateDependency"
+                    startContent={
+                        <Icon
+                            icon="material-symbols:deployed-code-update-outline"
+                            width={18}
+                        />
+                    }
+                >
+                    更新依赖
+                </ListboxItem>
+                <ListboxItem
+                    key="mergeBranch"
+                    startContent={
+                        <Icon icon="material-symbols:call-merge" width={18} />
+                    }
+                >
+                    合并分支
+                </ListboxItem>
             </Listbox>
         </div>
     );
