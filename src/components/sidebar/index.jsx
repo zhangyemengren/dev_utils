@@ -3,15 +3,19 @@ import { useContext } from "react";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { Icon } from "@iconify-icon/react";
 import { DispatchContext } from "@/app/page";
+import "./index.css";
 
 export default function SideBar() {
     const dispatch = useContext(DispatchContext);
 
     return (
-        <div className="w-56 p-6 border-r-1 border-divider">
+        <div className="w-48 p-4 border-r-1 border-divider">
             <Listbox
                 selectionMode="single"
                 aria-label="Actions"
+                itemClasses={{
+                    base: "custom-listbox-item",
+                }}
                 onAction={(key) => {
                     dispatch({
                         type: "update",
@@ -26,7 +30,7 @@ export default function SideBar() {
                     startContent={
                         <Icon
                             icon="material-symbols:text-snippet-outline"
-                            width={18}
+                            width={20}
                         />
                     }
                 >
@@ -37,7 +41,7 @@ export default function SideBar() {
                     startContent={
                         <Icon
                             icon="material-symbols:deployed-code-update-outline"
-                            width={18}
+                            width={20}
                         />
                     }
                 >
@@ -46,7 +50,7 @@ export default function SideBar() {
                 <ListboxItem
                     key="mergeBranch"
                     startContent={
-                        <Icon icon="material-symbols:call-merge" width={18} />
+                        <Icon icon="material-symbols:call-merge" width={20} />
                     }
                 >
                     合并分支

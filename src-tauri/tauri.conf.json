@@ -15,6 +15,9 @@
             "all": false,
             "window": {
                 "startDragging": true
+            },
+            "dialog": {
+                "all": true
             }
         },
         "bundle": {
