@@ -5,7 +5,3 @@
 html, body{
     @apply w-full h-full;
 }
-
-body{
-    @apply flex flex-col;
-}

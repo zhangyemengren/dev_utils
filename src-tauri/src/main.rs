@@ -12,7 +12,11 @@ use utils::*;
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![import_by_html, get_dirs,])
+        .invoke_handler(tauri::generate_handler![
+            import_by_html,
+            get_dirs,
+            update_dependency
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

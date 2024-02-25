@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Input, Button, CheckboxGroup, Checkbox } from "@nextui-org/react";
+import {
+    Input,
+    Button,
+    CheckboxGroup,
+    Checkbox,
+    Divider,
+} from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api/tauri";
+import Options from "./options";
 
 const URL_VALIDATION_TIMEOUT = 500;
 
@@ -10,6 +17,7 @@ export default function UpdateDependency() {
     const [projects, setProjects] = useState([]);
     const [selectedProjects, setSelectedProjects] = useState([]);
     const [isSelectAll, setIsSelectAll] = useState(false);
+    const [versionMode, setVersionMode] = useState("minor");
     const timer = useRef(null);
     const onValueChange = (value) => {
         setUrl(value);
@@ -29,6 +37,19 @@ export default function UpdateDependency() {
             setUrlErr("调用get_dirs失败");
         }
     };
+    const submit = async () => {
+        try {
+            const result = await invoke("update_dependency", {
+                payload: {
+                    projects: selectedProjects,
+                    versionMode,
+                },
+            });
+            console.log(result);
+        } catch (e) {
+            console.error(e);
+        }
+    };
     useEffect(() => {
         clearTimeout(timer.current);
         if (!url) {
@@ -39,7 +60,7 @@ export default function UpdateDependency() {
             getProjects(url);
         }, URL_VALIDATION_TIMEOUT);
     }, [url]);
-    console.log(projects);
+
     return (
         <div>
             <div>
@@ -57,38 +78,45 @@ export default function UpdateDependency() {
             </div>
             {projects.length > 0 && (
                 <div>
-                    <div className="py-4 flex space-x-4">
-                        <span className="text-medium">请选择项目</span>
-                        <Checkbox
-                            isSelected={isSelectAll}
-                            isIndeterminate={
-                                selectedProjects.length > 0 &&
-                                selectedProjects.length < projects.length
-                            }
+                    <Options
+                        projects={projects}
+                        selectedProjects={selectedProjects}
+                        setSelectedProjects={setSelectedProjects}
+                        isSelectAll={isSelectAll}
+                        setIsSelectAll={setIsSelectAll}
+                        versionMode={versionMode}
+                        setVersionMode={setVersionMode}
+                    />
+                    <Divider className="mb-4" />
+                    <div>
+                        <CheckboxGroup
+                            size="sm"
+                            value={selectedProjects}
                             onValueChange={(v) => {
-                                setIsSelectAll(v);
-                                setSelectedProjects(
-                                    v ? projects.map((i) => i.path) : [],
-                                );
+                                setSelectedProjects(v);
                             }}
                         >
-                            全选
-                        </Checkbox>
+                            {projects.map((i) => {
+                                return (
+                                    <Checkbox key={i.name} value={i.path}>
+                                        {i.name}
+                                    </Checkbox>
+                                );
+                            })}
+                        </CheckboxGroup>
                     </div>
-                    <CheckboxGroup
-                        value={selectedProjects}
-                        onValueChange={(v) => {
-                            setSelectedProjects(v);
-                        }}
-                    >
-                        {projects.map((i) => {
-                            return (
-                                <Checkbox key={i.name} value={i.path}>
-                                    {i.name}
-                                </Checkbox>
-                            );
-                        })}
-                    </CheckboxGroup>
+                    <Divider className="my-4" />
+                    <div>
+                        <Button
+                            onClick={submit}
+                            isDisabled={selectedProjects.length < 1}
+                            color="primary"
+                            size="sm"
+                            fullWidth
+                        >
+                            更新依赖
+                        </Button>
+                    </div>
                 </div>
             )}
         </div>
