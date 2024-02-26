@@ -17,7 +17,12 @@ export default function UpdateDependency() {
     const [projects, setProjects] = useState([]);
     const [selectedProjects, setSelectedProjects] = useState([]);
     const [isSelectAll, setIsSelectAll] = useState(false);
-    const [versionMode, setVersionMode] = useState("minor");
+    const [isExact, setIsExact] = useState(false);
+    const [pkgName, setPkgName] = useState("");
+    const [pkgVersion, setPkgVersion] = useState("");
+    const [pkgNameErr, setPkgNameErr] = useState("");
+    const [installMode, setInstallMode] = useState("default");
+    const [isLoading, setIsLoading] = useState(false);
     const timer = useRef(null);
     const onValueChange = (value) => {
         setUrl(value);
@@ -39,15 +44,25 @@ export default function UpdateDependency() {
     };
     const submit = async () => {
         try {
+            if (!pkgName) {
+                setPkgNameErr("请输入包名");
+                return;
+            }
+            setIsLoading(true);
             const result = await invoke("update_dependency", {
                 payload: {
                     projects: selectedProjects,
-                    versionMode,
+                    isExact,
+                    pkgName,
+                    pkgVersion,
+                    installMode,
                 },
             });
             console.log(result);
+            setIsLoading(false);
         } catch (e) {
             console.error(e);
+            setIsLoading(false);
         }
     };
     useEffect(() => {
@@ -84,8 +99,16 @@ export default function UpdateDependency() {
                         setSelectedProjects={setSelectedProjects}
                         isSelectAll={isSelectAll}
                         setIsSelectAll={setIsSelectAll}
-                        versionMode={versionMode}
-                        setVersionMode={setVersionMode}
+                        versionMode={isExact}
+                        setVersionMode={setIsExact}
+                        pkgName={pkgName}
+                        setPkgName={setPkgName}
+                        pkgVersion={pkgVersion}
+                        setPkgVersion={setPkgVersion}
+                        pkgNameErr={pkgNameErr}
+                        setPkgNameErr={setPkgNameErr}
+                        installMode={installMode}
+                        setInstallMode={setInstallMode}
                     />
                     <Divider className="mb-4" />
                     <div>
@@ -113,6 +136,7 @@ export default function UpdateDependency() {
                             color="primary"
                             size="sm"
                             fullWidth
+                            isLoading={isLoading}
                         >
                             更新依赖
                         </Button>

@@ -6,8 +6,16 @@ export default function Options({
     setSelectedProjects,
     isSelectAll,
     setIsSelectAll,
-    versionMode,
-    setVersionMode,
+    isExact,
+    setIsExact,
+    pkgName,
+    pkgVersion,
+    setPkgName,
+    setPkgVersion,
+    pkgNameErr,
+    setPkgNameErr,
+    installMode,
+    setInstallMode,
 }) {
     return (
         <div className="py-4">
@@ -28,12 +36,26 @@ export default function Options({
                 >
                     全选
                 </Checkbox>
+                <Checkbox
+                    size="sm"
+                    isSelected={isExact}
+                    onValueChange={setIsExact}
+                >
+                    固定版本
+                </Checkbox>
                 <div className="w-24">
                     <Input
                         size="sm"
                         variant="underlined"
                         type="text"
                         placeholder="请输入包名"
+                        value={pkgName}
+                        onValueChange={setPkgName}
+                        isInvalid={!!pkgNameErr}
+                        errorMessage={pkgNameErr}
+                        onFocus={() => {
+                            setPkgNameErr("");
+                        }}
                     />
                 </div>
                 <div className="w-24">
@@ -42,20 +64,24 @@ export default function Options({
                         variant="underlined"
                         type="text"
                         placeholder="请输入版本"
+                        value={pkgVersion}
+                        onValueChange={setPkgVersion}
                     />
                 </div>
             </div>
             <Divider className="my-4" />
             <div>
                 <RadioGroup
+                    label="install flag"
                     orientation="horizontal"
                     size="sm"
-                    value={versionMode}
-                    onValueChange={setVersionMode}
+                    value={installMode}
+                    onValueChange={setInstallMode}
                 >
-                    <Radio value="minor">主版本</Radio>
-                    <Radio value="patch">修订版本</Radio>
-                    <Radio value="exact">精确版本</Radio>
+                    <Radio value="default">default</Radio>
+                    <Radio value="prod">prod</Radio>
+                    <Radio value="dev">dev</Radio>
+                    <Radio value="optional">optional</Radio>
                 </RadioGroup>
             </div>
         </div>

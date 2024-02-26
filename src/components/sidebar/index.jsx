@@ -30,7 +30,7 @@ export default function SideBar() {
                     startContent={
                         <Icon
                             icon="material-symbols:text-snippet-outline"
-                            width={20}
+                            width={18}
                         />
                     }
                 >
@@ -41,7 +41,7 @@ export default function SideBar() {
                     startContent={
                         <Icon
                             icon="material-symbols:deployed-code-update-outline"
-                            width={20}
+                            width={18}
                         />
                     }
                 >
@@ -50,7 +50,7 @@ export default function SideBar() {
                 <ListboxItem
                     key="mergeBranch"
                     startContent={
-                        <Icon icon="material-symbols:call-merge" width={20} />
+                        <Icon icon="material-symbols:call-merge" width={18} />
                     }
                 >
                     合并分支
