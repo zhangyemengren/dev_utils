@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, createContext, useReducer } from "react";
+import { invoke } from "@tauri-apps/api/tauri";
 import SideBar from "../components/sidebar";
 import Playground from "../components/playground";
 
@@ -18,6 +19,7 @@ export default function Home() {
                 document.documentElement.classList.remove("dark");
             }
         });
+        invoke("close_splashscreen");
     }, []);
     return (
         <main className="flex min-h-full">

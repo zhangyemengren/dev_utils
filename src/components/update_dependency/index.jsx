@@ -23,6 +23,7 @@ export default function UpdateDependency() {
     const [pkgNameErr, setPkgNameErr] = useState("");
     const [installMode, setInstallMode] = useState("default");
     const [isLoading, setIsLoading] = useState(false);
+    const [registry, setRegistry] = useState("https://registry.npmmirror.com");
     const timer = useRef(null);
     const onValueChange = (value) => {
         setUrl(value);
@@ -56,6 +57,7 @@ export default function UpdateDependency() {
                     pkgName,
                     pkgVersion,
                     installMode,
+                    registry,
                 },
             });
             console.log(result);
@@ -109,6 +111,8 @@ export default function UpdateDependency() {
                         setPkgNameErr={setPkgNameErr}
                         installMode={installMode}
                         setInstallMode={setInstallMode}
+                        registry={registry}
+                        setRegistry={setRegistry}
                     />
                     <Divider className="mb-4" />
                     <div>

@@ -8,6 +8,7 @@ pub async fn update_dependency(payload: Payload) {
         ref pkg_name,
         ref pkg_version,
         ref install_mode,
+        ref registry,
         is_exact,
         ..
     } = payload;
@@ -30,7 +31,10 @@ pub async fn update_dependency(payload: Payload) {
             _ => "",
         };
         args.push(install_mode_flag.to_string());
-        let mut status = Command::new("npm")
+        if !registry.is_empty() {
+            args.push(format!("--registry={}", registry));
+        }
+        let status = Command::new("npm")
             .current_dir(p)
             .args(args)
             .stdout(Stdio::piped())
@@ -49,6 +53,7 @@ pub struct Payload {
     pub pkg_name: String,
     pub pkg_version: String,
     pub install_mode: InstallMode,
+    pub registry: String,
 }
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]

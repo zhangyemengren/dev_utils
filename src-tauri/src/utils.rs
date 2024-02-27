@@ -4,8 +4,8 @@ use std::path::Path;
 
 #[derive(Debug, Serialize)]
 pub struct Item {
-    name: String,
-    path: String,
+    pub name: String,
+    pub path: String,
 }
 #[tauri::command]
 pub fn get_dirs(url: String) -> Vec<Item> {

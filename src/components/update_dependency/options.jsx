@@ -16,6 +16,8 @@ export default function Options({
     setPkgNameErr,
     installMode,
     setInstallMode,
+    registry,
+    setRegistry,
 }) {
     return (
         <div className="py-4">
@@ -83,6 +85,25 @@ export default function Options({
                     <Radio value="dev">dev</Radio>
                     <Radio value="optional">optional</Radio>
                 </RadioGroup>
+            </div>
+            <Divider className="my-4" />
+            <div>
+                <Input
+                    size="sm"
+                    variant="underlined"
+                    type="text"
+                    label="npm registry"
+                    value={registry}
+                    onValueChange={setRegistry}
+                />
+                <Input
+                    size="sm"
+                    variant="underlined"
+                    type="text"
+                    label="npm registry"
+                    value={registry}
+                    onValueChange={setRegistry}
+                />
             </div>
         </div>
     );

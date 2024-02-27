@@ -1,8 +1,8 @@
 use scraper::{ElementRef, Html, Selector};
 
 #[tauri::command]
-pub fn import_by_html(value: &str) -> String {
-    let fragment = Html::parse_fragment(value);
+pub async fn import_by_html(value: String) -> String {
+    let fragment = Html::parse_fragment(&value);
     let table_selector = Selector::parse("table.confluenceTable").unwrap();
     let tables: Vec<_> = fragment
         .select(&table_selector)
@@ -12,7 +12,7 @@ pub fn import_by_html(value: &str) -> String {
         println!("{:?} {:?} .", tables[0].t_type, tables[0].rows.len());
         format!("{:?}", tables)
     } else {
-        format!("No table found")
+        "No table found".to_string()
     }
 }
 

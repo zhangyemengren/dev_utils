@@ -18,6 +18,9 @@
             },
             "dialog": {
                 "all": true
+            },
+            "notification": {
+                "all": true
             }
         },
         "bundle": {
@@ -35,7 +38,7 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "com.tauri.dev",
+            "identifier": "github.com.zhangyemengren.devutils.1992",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
@@ -66,7 +69,15 @@
                 "resizable": true,
                 "width": 800,
                 "hiddenTitle": true,
-                "titleBarStyle": "Overlay"
+                "titleBarStyle": "Overlay",
+                "visible": false
+            },
+            {
+                "width": 80,
+                "height": 80,
+                "decorations": false,
+                "url": "/start.gif",
+                "label": "splashscreen"
             }
         ]
     }
