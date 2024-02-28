@@ -37,6 +37,7 @@ export default function Home() {
     );
 }
 const initialState = {
+    menuItem: undefined,
     updateDependency: {
         url: "",
         urlErr: "",
@@ -50,6 +51,7 @@ const initialState = {
         installMode: "default",
         isLoading: false,
         registry: "https://registry.npmmirror.com",
+        npmPath: "/usr/local/bin",
     },
 };
 function modelReducer(state, action) {

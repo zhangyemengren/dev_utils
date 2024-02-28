@@ -14,12 +14,13 @@ export default function Options() {
             pkgNameErr,
             installMode,
             registry,
+            npmPath,
         },
     } = useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
     return (
-        <div className="py-4">
+        <div>
             <div className="flex space-x-4 flex-wrap items-center">
                 <Checkbox
                     size="sm"
@@ -101,7 +102,7 @@ export default function Options() {
                     />
                 </div>
             </div>
-            <Divider className="my-4" />
+            <Divider className="my-2" />
             <div>
                 <RadioGroup
                     label="install flag"
@@ -140,14 +141,21 @@ export default function Options() {
                         });
                     }}
                 />
-                {/*<Input*/}
-                {/*    size="sm"*/}
-                {/*    variant="underlined"*/}
-                {/*    type="text"*/}
-                {/*    label="npm registry"*/}
-                {/*    value={registry}*/}
-                {/*    onValueChange={setRegistry}*/}
-                {/*/>*/}
+                <Input
+                    size="sm"
+                    variant="underlined"
+                    type="text"
+                    label="npm path"
+                    value={npmPath}
+                    onValueChange={(v) => {
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                npmPath: v,
+                            },
+                        });
+                    }}
+                />
             </div>
         </div>
     );

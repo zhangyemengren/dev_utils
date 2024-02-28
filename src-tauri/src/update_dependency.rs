@@ -1,6 +1,6 @@
 use rayon::prelude::*;
 use serde::Deserialize;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 #[tauri::command]
 pub async fn update_dependency(payload: Payload) {
@@ -9,6 +9,7 @@ pub async fn update_dependency(payload: Payload) {
         ref pkg_version,
         ref install_mode,
         ref registry,
+        ref npm_path,
         is_exact,
         ..
     } = payload;
@@ -30,15 +31,17 @@ pub async fn update_dependency(payload: Payload) {
             InstallMode::Optional => "--save-optional",
             _ => "",
         };
-        args.push(install_mode_flag.to_string());
+        if !install_mode_flag.is_empty() {
+            args.push(install_mode_flag.to_string());
+        }
         if !registry.is_empty() {
             args.push(format!("--registry={}", registry));
         }
+        println!("args: {:?}", args);
         let status = Command::new("npm")
+            .env("PATH", npm_path)
             .current_dir(p)
             .args(args)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
             .status()
             .expect("failed to execute process");
         println!("Updating dependency in project: {:?}", status.success());
@@ -54,6 +57,7 @@ pub struct Payload {
     pub pkg_version: String,
     pub install_mode: InstallMode,
     pub registry: String,
+    pub npm_path: String,
 }
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
