@@ -2,7 +2,9 @@ import { useContext } from "react";
 import { ModelContext } from "@/app/page";
 import TextImport from "@/components/text_import";
 import UpdateDependency from "@/components/update_dependency";
-import MergeBranch from "@/components/merge_branch";
+import GitOperation from "@/components/git_operation";
+import UrlComponent from "@/components/url";
+import JsonComponent from "@/components/json";
 
 export default function Playground() {
     const state = useContext(ModelContext);
@@ -26,8 +28,12 @@ function renderMenuItem(item) {
             return <TextImport />;
         case "updateDependency":
             return <UpdateDependency />;
-        case "mergeBranch":
-            return <MergeBranch />;
+        case "gitOperation":
+            return <GitOperation />;
+        case "url":
+            return <UrlComponent />;
+        case "json":
+            return <JsonComponent />;
         default:
             return null;
     }

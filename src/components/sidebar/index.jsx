@@ -48,12 +48,26 @@ export default function SideBar() {
                     更新依赖
                 </ListboxItem>
                 <ListboxItem
-                    key="mergeBranch"
+                    key="gitOperation"
                     startContent={
                         <Icon icon="material-symbols:call-merge" width={18} />
                     }
                 >
-                    合并分支
+                    GIT操作
+                </ListboxItem>
+                <ListboxItem
+                    key="url"
+                    startContent={
+                        <Icon icon="material-symbols:link" width={18} />
+                    }
+                >
+                    URL
+                </ListboxItem>
+                <ListboxItem
+                    key="json"
+                    startContent={<Icon icon="codicon:json" width={18} />}
+                >
+                    JSON
                 </ListboxItem>
             </Listbox>
         </div>

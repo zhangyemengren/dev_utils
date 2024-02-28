@@ -2,8 +2,9 @@
 
 import { useEffect, createContext, useReducer } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import SideBar from "../components/sidebar";
-import Playground from "../components/playground";
+import SideBar from "@/components/sidebar";
+import Playground from "@/components/playground";
+import Menu from "@/components/menu";
 
 export default function Home() {
     const [state, dispatch] = useReducer(modelReducer, initialState, undefined);
@@ -22,21 +23,47 @@ export default function Home() {
         invoke("close_splashscreen");
     }, []);
     return (
-        <main className="flex min-h-full">
+        <main className="h-full">
             <ModelContext.Provider value={state}>
                 <DispatchContext.Provider value={dispatch}>
-                    <SideBar />
-                    <Playground />
+                    <Menu />
+                    <div className="flex min-h-full">
+                        <SideBar />
+                        <Playground />
+                    </div>
                 </DispatchContext.Provider>
             </ModelContext.Provider>
         </main>
     );
 }
-const initialState = {};
+const initialState = {
+    updateDependency: {
+        url: "",
+        urlErr: "",
+        projects: [],
+        selectedProjects: [],
+        isSelectAll: false,
+        isExact: false,
+        pkgName: "",
+        pkgVersion: "",
+        pkgNameErr: "",
+        installMode: "default",
+        isLoading: false,
+        registry: "https://registry.npmmirror.com",
+    },
+};
 function modelReducer(state, action) {
     switch (action.type) {
         case "update":
             return { ...state, ...action.payload };
+        case "updateDependency":
+            return {
+                ...state,
+                updateDependency: {
+                    ...state.updateDependency,
+                    ...action.payload,
+                },
+            };
         default:
             return state;
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import {
     Input,
     Button,
@@ -7,49 +7,84 @@ import {
     Divider,
 } from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api/tauri";
+import { ModelContext, DispatchContext } from "@/app/page";
 import Options from "./options";
 
 const URL_VALIDATION_TIMEOUT = 500;
 
 export default function UpdateDependency() {
-    const [url, setUrl] = useState("");
-    const [urlErr, setUrlErr] = useState("");
-    const [projects, setProjects] = useState([]);
-    const [selectedProjects, setSelectedProjects] = useState([]);
-    const [isSelectAll, setIsSelectAll] = useState(false);
-    const [isExact, setIsExact] = useState(false);
-    const [pkgName, setPkgName] = useState("");
-    const [pkgVersion, setPkgVersion] = useState("");
-    const [pkgNameErr, setPkgNameErr] = useState("");
-    const [installMode, setInstallMode] = useState("default");
-    const [isLoading, setIsLoading] = useState(false);
-    const [registry, setRegistry] = useState("https://registry.npmmirror.com");
+    const {
+        updateDependency: {
+            url,
+            urlErr,
+            projects,
+            selectedProjects,
+            isExact,
+            pkgName,
+            pkgVersion,
+            installMode,
+            isLoading,
+            registry,
+        },
+    } = useContext(ModelContext);
+    const dispatch = useContext(DispatchContext);
+
     const timer = useRef(null);
     const onValueChange = (value) => {
-        setUrl(value);
-        setUrlErr(false);
+        dispatch({
+            type: "updateDependency",
+            payload: {
+                url: value,
+                urlErr: false,
+            },
+        });
     };
 
     const getProjects = async (url) => {
         try {
             const result = await invoke("get_dirs", { url });
             if (result.length < 1) {
-                setUrlErr("路径错误或项目为空");
+                dispatch({
+                    type: "updateDependency",
+                    payload: {
+                        urlErr: "路径错误或项目为空",
+                    },
+                });
             }
-            setProjects(result);
-            setSelectedProjects(result.map((i) => i.path));
-            setIsSelectAll(true);
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    projects: result,
+                    selectedProjects: result.map((i) => i.path),
+                    isSelectAll: true,
+                },
+            });
         } catch (e) {
-            setUrlErr("调用get_dirs失败");
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    urlErr: "调用get_dirs失败",
+                },
+            });
         }
     };
     const submit = async () => {
         try {
             if (!pkgName) {
-                setPkgNameErr("请输入包名");
+                dispatch({
+                    type: "updateDependency",
+                    payload: {
+                        pkgNameErr: "包名不能为空",
+                    },
+                });
                 return;
             }
-            setIsLoading(true);
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    isLoading: true,
+                },
+            });
             const result = await invoke("update_dependency", {
                 payload: {
                     projects: selectedProjects,
@@ -60,22 +95,39 @@ export default function UpdateDependency() {
                     registry,
                 },
             });
-            console.log(result);
-            setIsLoading(false);
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    isLoading: false,
+                },
+            });
         } catch (e) {
             console.error(e);
-            setIsLoading(false);
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    isLoading: false,
+                },
+            });
         }
     };
     useEffect(() => {
         clearTimeout(timer.current);
         if (!url) {
-            setProjects([]);
+            dispatch({
+                type: "updateDependency",
+                payload: {
+                    projects: [],
+                },
+            });
             return;
         }
         timer.current = setTimeout(() => {
             getProjects(url);
         }, URL_VALIDATION_TIMEOUT);
+        return () => {
+            clearTimeout(timer.current);
+        };
     }, [url]);
 
     return (
@@ -90,37 +142,31 @@ export default function UpdateDependency() {
                     isInvalid={!!urlErr}
                     errorMessage={urlErr}
                     onValueChange={onValueChange}
-                    onFocus={() => setUrlErr("")}
+                    onFocus={() => {
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                urlErr: "",
+                            },
+                        });
+                    }}
                 />
             </div>
             {projects.length > 0 && (
                 <div>
-                    <Options
-                        projects={projects}
-                        selectedProjects={selectedProjects}
-                        setSelectedProjects={setSelectedProjects}
-                        isSelectAll={isSelectAll}
-                        setIsSelectAll={setIsSelectAll}
-                        versionMode={isExact}
-                        setVersionMode={setIsExact}
-                        pkgName={pkgName}
-                        setPkgName={setPkgName}
-                        pkgVersion={pkgVersion}
-                        setPkgVersion={setPkgVersion}
-                        pkgNameErr={pkgNameErr}
-                        setPkgNameErr={setPkgNameErr}
-                        installMode={installMode}
-                        setInstallMode={setInstallMode}
-                        registry={registry}
-                        setRegistry={setRegistry}
-                    />
+                    <Options />
                     <Divider className="mb-4" />
                     <div>
                         <CheckboxGroup
                             size="sm"
                             value={selectedProjects}
                             onValueChange={(v) => {
-                                setSelectedProjects(v);
+                                dispatch({
+                                    type: "updateDependency",
+                                    payload: {
+                                        selectedProjects: v,
+                                    },
+                                });
                             }}
                         >
                             {projects.map((i) => {

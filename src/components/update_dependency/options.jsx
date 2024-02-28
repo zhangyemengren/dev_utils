@@ -1,24 +1,23 @@
 import { Checkbox, Input, Radio, RadioGroup, Divider } from "@nextui-org/react";
+import { ModelContext, DispatchContext } from "@/app/page";
+import { useContext } from "react";
 
-export default function Options({
-    projects,
-    selectedProjects,
-    setSelectedProjects,
-    isSelectAll,
-    setIsSelectAll,
-    isExact,
-    setIsExact,
-    pkgName,
-    pkgVersion,
-    setPkgName,
-    setPkgVersion,
-    pkgNameErr,
-    setPkgNameErr,
-    installMode,
-    setInstallMode,
-    registry,
-    setRegistry,
-}) {
+export default function Options() {
+    const {
+        updateDependency: {
+            projects,
+            selectedProjects,
+            isSelectAll,
+            isExact,
+            pkgName,
+            pkgVersion,
+            pkgNameErr,
+            installMode,
+            registry,
+        },
+    } = useContext(ModelContext);
+    const dispatch = useContext(DispatchContext);
+
     return (
         <div className="py-4">
             <div className="flex space-x-4 flex-wrap items-center">
@@ -30,10 +29,15 @@ export default function Options({
                         selectedProjects.length < projects.length
                     }
                     onValueChange={(v) => {
-                        setIsSelectAll(v);
-                        setSelectedProjects(
-                            v ? projects.map((i) => i.path) : [],
-                        );
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                isSelectAll: v,
+                                selectedProjects: v
+                                    ? projects.map((i) => i.path)
+                                    : [],
+                            },
+                        });
                     }}
                 >
                     全选
@@ -41,7 +45,14 @@ export default function Options({
                 <Checkbox
                     size="sm"
                     isSelected={isExact}
-                    onValueChange={setIsExact}
+                    onValueChange={(v) => {
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                isExact: v,
+                            },
+                        });
+                    }}
                 >
                     固定版本
                 </Checkbox>
@@ -52,11 +63,23 @@ export default function Options({
                         type="text"
                         placeholder="请输入包名"
                         value={pkgName}
-                        onValueChange={setPkgName}
+                        onValueChange={(v) => {
+                            dispatch({
+                                type: "updateDependency",
+                                payload: {
+                                    pkgName: v,
+                                },
+                            });
+                        }}
                         isInvalid={!!pkgNameErr}
                         errorMessage={pkgNameErr}
                         onFocus={() => {
-                            setPkgNameErr("");
+                            dispatch({
+                                type: "updateDependency",
+                                payload: {
+                                    pkgNameErr: "",
+                                },
+                            });
                         }}
                     />
                 </div>
@@ -67,7 +90,14 @@ export default function Options({
                         type="text"
                         placeholder="请输入版本"
                         value={pkgVersion}
-                        onValueChange={setPkgVersion}
+                        onValueChange={(v) => {
+                            dispatch({
+                                type: "updateDependency",
+                                payload: {
+                                    pkgVersion: v,
+                                },
+                            });
+                        }}
                     />
                 </div>
             </div>
@@ -78,7 +108,14 @@ export default function Options({
                     orientation="horizontal"
                     size="sm"
                     value={installMode}
-                    onValueChange={setInstallMode}
+                    onValueChange={(v) => {
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                installMode: v,
+                            },
+                        });
+                    }}
                 >
                     <Radio value="default">default</Radio>
                     <Radio value="prod">prod</Radio>
@@ -94,16 +131,23 @@ export default function Options({
                     type="text"
                     label="npm registry"
                     value={registry}
-                    onValueChange={setRegistry}
+                    onValueChange={(v) => {
+                        dispatch({
+                            type: "updateDependency",
+                            payload: {
+                                registry: v,
+                            },
+                        });
+                    }}
                 />
-                <Input
-                    size="sm"
-                    variant="underlined"
-                    type="text"
-                    label="npm registry"
-                    value={registry}
-                    onValueChange={setRegistry}
-                />
+                {/*<Input*/}
+                {/*    size="sm"*/}
+                {/*    variant="underlined"*/}
+                {/*    type="text"*/}
+                {/*    label="npm registry"*/}
+                {/*    value={registry}*/}
+                {/*    onValueChange={setRegistry}*/}
+                {/*/>*/}
             </div>
         </div>
     );

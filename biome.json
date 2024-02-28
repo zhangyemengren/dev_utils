@@ -6,6 +6,6 @@
         "indentWidth": 4,
         "lineWidth": 80,
         "lineEnding": "lf",
-        "ignore": [".next/", "node_modules/", "src-tauri/"]
+        "ignore": [".next/", "node_modules/", "src-tauri/", "out/"]
     }
 }

@@ -4,5 +4,5 @@
 import { NextUIProvider } from "@nextui-org/react";
 
 export function Providers({ children }) {
-    return <NextUIProvider className="h-full pt-6">{children}</NextUIProvider>;
+    return <NextUIProvider className="h-full pt-20">{children}</NextUIProvider>;
 }
