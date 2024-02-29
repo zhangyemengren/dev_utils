@@ -5,10 +5,10 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 const URL_VALIDATION_TIMEOUT = 500;
 
-export default function Workspace() {
+export default function Workspace({ namespace }) {
     const timer = useRef(null);
     const {
-        updateDependency: { url, urlErr, projects, selectedProjects },
+        [namespace]: { url, urlErr, projects, selectedProjects },
     } = useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
@@ -17,14 +17,14 @@ export default function Workspace() {
             const result = await invoke("get_dirs", { url });
             if (result.length < 1) {
                 dispatch({
-                    type: "updateDependency",
+                    type: namespace,
                     payload: {
                         urlErr: "路径错误或项目为空",
                     },
                 });
             }
             dispatch({
-                type: "updateDependency",
+                type: namespace,
                 payload: {
                     projects: result,
                     selectedProjects: result.map((i) => i.path),
@@ -33,7 +33,7 @@ export default function Workspace() {
             });
         } catch (e) {
             dispatch({
-                type: "updateDependency",
+                type: namespace,
                 payload: {
                     urlErr: "调用get_dirs失败",
                 },
@@ -45,7 +45,7 @@ export default function Workspace() {
         clearTimeout(timer.current);
         if (!url) {
             dispatch({
-                type: "updateDependency",
+                type: namespace,
                 payload: {
                     projects: [],
                 },
@@ -72,8 +72,9 @@ export default function Workspace() {
                     isInvalid={!!urlErr}
                     errorMessage={urlErr}
                     onValueChange={(v) => {
+                        console.log(namespace, "namespace");
                         dispatch({
-                            type: "updateDependency",
+                            type: namespace,
                             payload: {
                                 url: v,
                                 urlErr: false,
@@ -82,7 +83,7 @@ export default function Workspace() {
                     }}
                     onFocus={() => {
                         dispatch({
-                            type: "updateDependency",
+                            type: namespace,
                             payload: {
                                 urlErr: "",
                             },
@@ -100,7 +101,7 @@ export default function Workspace() {
                                 value={selectedProjects}
                                 onValueChange={(v) => {
                                     dispatch({
-                                        type: "updateDependency",
+                                        type: namespace,
                                         payload: {
                                             selectedProjects: v,
                                         },

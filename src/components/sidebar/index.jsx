@@ -65,7 +65,9 @@ export default function SideBar() {
                 </ListboxItem>
                 <ListboxItem
                     key="json"
-                    startContent={<Icon icon="codicon:json" width={18} />}
+                    startContent={
+                        <Icon icon="material-symbols:data-object" width={18} />
+                    }
                 >
                     JSON
                 </ListboxItem>

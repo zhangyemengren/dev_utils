@@ -11,11 +11,7 @@ export default function Playground() {
 
     return (
         <div className="grow p-4 flex flex-col">
-            <div className="flex items-center gap-3 rounded-medium border-small border-divider p-4">
-                <p>Playground</p>
-                <p>选择的项目是{state.menuItem}</p>
-            </div>
-            <div className="grow flex w-full mt-4 p-4 flex-col gap-4 rounded-medium border-small border-divider">
+            <div className="grow flex w-full mt-2 p-4 flex-col gap-4 rounded-medium border-small border-divider">
                 {renderMenuItem(state.menuItem)}
             </div>
         </div>

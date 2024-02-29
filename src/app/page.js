@@ -53,19 +53,29 @@ const initialState = {
         registry: "https://registry.npmmirror.com",
         npmPath: "/usr/local/bin",
     },
+    gitOperation: {
+        url: "",
+        urlErr: "",
+        projects: [],
+        selectedProjects: [],
+        isSelectAll: false,
+        isLoading: false,
+    },
 };
 function modelReducer(state, action) {
     switch (action.type) {
         case "update":
             return { ...state, ...action.payload };
         case "updateDependency":
+        case "gitOperation":
             return {
                 ...state,
-                updateDependency: {
-                    ...state.updateDependency,
+                [action.type]: {
+                    ...state[action.type],
                     ...action.payload,
                 },
             };
+
         default:
             return state;
     }

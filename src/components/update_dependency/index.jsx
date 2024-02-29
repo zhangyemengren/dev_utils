@@ -68,7 +68,7 @@ export default function UpdateDependency() {
 
     return (
         <div>
-            <Workspace />
+            <Workspace namespace="updateDependency" />
             <Divider className="mt-4" />
             {projects.length > 0 && (
                 <>
