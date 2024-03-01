@@ -183,10 +183,11 @@ pub async fn git_workflow(payload: GitPayload) -> bool {
                 message: "".to_string(),
             })
             .collect::<Vec<_>>();
-        for (i, w) in work_flows.clone().iter().enumerate() {
+        for (i, w) in work_flows.iter_mut().enumerate() {
+            let status = result.status.clone();
             let result = w.work_flow.run(p, config);
             work_flows[i] = result.clone();
-            if let Status::Failed = result.status {
+            if let Status::Failed = status {
                 break;
             }
         }
