@@ -3,8 +3,8 @@ use serde::Deserialize;
 use std::process::Command;
 
 #[tauri::command]
-pub async fn update_dependency(payload: Payload) {
-    let Payload {
+pub async fn update_dependency(payload: UpDepPayload) {
+    let UpDepPayload {
         ref pkg_name,
         ref pkg_version,
         ref install_mode,
@@ -50,7 +50,7 @@ pub async fn update_dependency(payload: Payload) {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct Payload {
+pub struct UpDepPayload {
     pub projects: Vec<String>,
     pub is_exact: bool,
     pub pkg_name: String,

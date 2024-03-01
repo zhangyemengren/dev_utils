@@ -4,10 +4,10 @@ import { useContext } from "react";
 
 export default function Options() {
     const {
+        projects,
+        selectedProjects,
+        isSelectAll,
         updateDependency: {
-            projects,
-            selectedProjects,
-            isSelectAll,
             isExact,
             pkgName,
             pkgVersion,
@@ -31,7 +31,7 @@ export default function Options() {
                     }
                     onValueChange={(v) => {
                         dispatch({
-                            type: "updateDependency",
+                            type: "update",
                             payload: {
                                 isSelectAll: v,
                                 selectedProjects: v

@@ -38,12 +38,12 @@ export default function Home() {
 }
 const initialState = {
     menuItem: undefined,
+    workspaceUrl: "/Users/zhangchi/personal/tests",
+    workspaceUrlErr: "",
+    projects: [],
+    selectedProjects: [],
+    isSelectAll: false,
     updateDependency: {
-        url: "",
-        urlErr: "",
-        projects: [],
-        selectedProjects: [],
-        isSelectAll: false,
         isExact: false,
         pkgName: "",
         pkgVersion: "",
@@ -54,11 +54,6 @@ const initialState = {
         npmPath: "/usr/local/bin",
     },
     gitOperation: {
-        url: "",
-        urlErr: "",
-        projects: [],
-        selectedProjects: [],
-        isSelectAll: false,
         isLoading: false,
     },
 };

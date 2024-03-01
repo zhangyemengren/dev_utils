@@ -5,11 +5,10 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 const URL_VALIDATION_TIMEOUT = 500;
 
-export default function Workspace({ namespace }) {
+export default function Workspace() {
     const timer = useRef(null);
-    const {
-        [namespace]: { url, urlErr, projects, selectedProjects },
-    } = useContext(ModelContext);
+    const { workspaceUrl, workspaceUrlErr, projects, selectedProjects } =
+        useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
     const getProjects = async (url) => {
@@ -17,14 +16,14 @@ export default function Workspace({ namespace }) {
             const result = await invoke("get_dirs", { url });
             if (result.length < 1) {
                 dispatch({
-                    type: namespace,
+                    type: "update",
                     payload: {
-                        urlErr: "路径错误或项目为空",
+                        workspaceUrlErr: "路径错误或项目为空",
                     },
                 });
             }
             dispatch({
-                type: namespace,
+                type: "update",
                 payload: {
                     projects: result,
                     selectedProjects: result.map((i) => i.path),
@@ -33,9 +32,9 @@ export default function Workspace({ namespace }) {
             });
         } catch (e) {
             dispatch({
-                type: namespace,
+                type: "update",
                 payload: {
-                    urlErr: "调用get_dirs失败",
+                    workspaceUrlErr: "调用get_dirs失败",
                 },
             });
         }
@@ -43,9 +42,9 @@ export default function Workspace({ namespace }) {
 
     useEffect(() => {
         clearTimeout(timer.current);
-        if (!url) {
+        if (!workspaceUrl) {
             dispatch({
-                type: namespace,
+                type: "update",
                 payload: {
                     projects: [],
                 },
@@ -53,12 +52,12 @@ export default function Workspace({ namespace }) {
             return;
         }
         timer.current = setTimeout(() => {
-            getProjects(url);
+            getProjects(workspaceUrl);
         }, URL_VALIDATION_TIMEOUT);
         return () => {
             clearTimeout(timer.current);
         };
-    }, [url]);
+    }, [workspaceUrl]);
 
     return (
         <>
@@ -68,24 +67,23 @@ export default function Workspace({ namespace }) {
                     variant="bordered"
                     type="text"
                     label="工作区路径"
-                    value={url}
-                    isInvalid={!!urlErr}
-                    errorMessage={urlErr}
+                    value={workspaceUrl}
+                    isInvalid={!!workspaceUrlErr}
+                    errorMessage={workspaceUrlErr}
                     onValueChange={(v) => {
-                        console.log(namespace, "namespace");
                         dispatch({
-                            type: namespace,
+                            type: "update",
                             payload: {
-                                url: v,
-                                urlErr: false,
+                                workspaceUrl: v,
+                                workspaceUrlErr: "",
                             },
                         });
                     }}
                     onFocus={() => {
                         dispatch({
-                            type: namespace,
+                            type: "update",
                             payload: {
-                                urlErr: "",
+                                workspaceUrlErr: "",
                             },
                         });
                     }}
@@ -101,7 +99,7 @@ export default function Workspace({ namespace }) {
                                 value={selectedProjects}
                                 onValueChange={(v) => {
                                     dispatch({
-                                        type: namespace,
+                                        type: "update",
                                         payload: {
                                             selectedProjects: v,
                                         },

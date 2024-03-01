@@ -16,7 +16,7 @@ use utils::*;
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            test,
+            git_workflow,
             close_splashscreen,
             import_by_html,
             get_dirs,

@@ -7,9 +7,9 @@ import Options from "./options";
 
 export default function UpdateDependency() {
     const {
+        projects,
+        selectedProjects,
         updateDependency: {
-            projects,
-            selectedProjects,
             isExact,
             pkgName,
             pkgVersion,
@@ -68,7 +68,7 @@ export default function UpdateDependency() {
 
     return (
         <div>
-            <Workspace namespace="updateDependency" />
+            <Workspace />
             <Divider className="mt-4" />
             {projects.length > 0 && (
                 <>
