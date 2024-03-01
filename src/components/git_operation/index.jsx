@@ -20,7 +20,7 @@ export default function MergeBranch() {
                     mode: "commit",
                     config: {
                         needPush: true,
-                        executeBranch: "branch-3",
+                        // executeBranch: "branch-3",
                         mergeBranch: undefined,
                         commitMessage: undefined,
                         cherryPickCommit: undefined,

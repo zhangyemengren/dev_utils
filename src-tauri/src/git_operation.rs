@@ -2,7 +2,6 @@ use rayon::prelude::*;
 use serde::Deserialize;
 use std::borrow::Borrow;
 use std::process::Command;
-use tauri::http::status;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -34,13 +33,13 @@ pub struct Config {
 pub struct ExecutionResult {
     work_flows: Vec<StatusItem>,
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StatusItem {
     work_flow: WorkFlow,
     status: Status,
     message: String,
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Status {
     Success,
     Failed,
@@ -176,10 +175,21 @@ pub async fn git_workflow(payload: GitPayload) -> bool {
     } = payload;
 
     payload.projects.par_iter().for_each(|p| {
-        let work_flows = get_workflow(mode, config)
+        let mut work_flows = get_workflow(mode, config)
             .into_iter()
-            .map(|w| w.run(p, config))
+            .map(|w| StatusItem{
+                work_flow: w,
+                status: Status::NotRunning,
+                message: "".to_string(),
+            })
             .collect::<Vec<_>>();
+        for (i, w) in work_flows.clone().iter().enumerate() {
+            let result = w.work_flow.run(p, config);
+            work_flows[i] = result.clone();
+            if let Status::Failed = result.status {
+                break;
+            }
+        }
         println!("Checking clean in project: {:?}", work_flows);
     });
 
