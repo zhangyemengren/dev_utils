@@ -17,7 +17,7 @@ export default function MergeBranch() {
             await invoke("git_workflow", {
                 payload: {
                     projects: selectedProjects,
-                    mode: "merge",
+                    mode: "commit",
                     config: {
                         needPush: false,
                         // executeBranch: "branch-3",
