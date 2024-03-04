@@ -54,7 +54,7 @@ pub enum WorkFlow {
     // ok -> CheckSubmodule -> Pull
     // fail -> Checkout -b
     CheckoutExecuteBranch,
-    CheckoutMergeBranch,
+    Pull,
     Push,
     Merge,
     Rebase,
@@ -67,11 +67,30 @@ impl WorkFlow {
             Self::Add => Self::cmd_add(path),
             Self::Commit => Self::cmd_commit(path, config.commit_message.as_deref()),
             Self::Push => Self::cmd_push(path, config.execute_branch.as_deref()),
+            Self::CheckClean => Self::cmd_check_clean(path),
             _ => StatusItem {
                 work_flow: WorkFlow::Add,
                 status: Status::Success,
                 message: "".to_string(),
             },
+        }
+    }
+    pub fn cmd_check_clean(path: &str) -> StatusItem {
+        let output = Command::new("git")
+            .current_dir(path)
+            .args(["status", "-s"])
+            .output()
+            .expect("failed to execute process");
+        let status = if output.status.success() && output.stdout.is_empty() {
+            Status::Success
+        } else {
+            Status::Failed
+        };
+
+        StatusItem {
+            work_flow: WorkFlow::CheckClean,
+            status,
+            message: "".to_string(),
         }
     }
     pub fn cmd_add(path: &str) -> StatusItem {
@@ -132,34 +151,35 @@ where
     let mode = mode.borrow();
     let config = config.borrow();
     let mut work_flows = vec![];
+
     match mode {
-        Mode::Merge => {
+        Mode::Merge | Mode::Rebase | Mode::CherryPick => {
             work_flows.push(WorkFlow::CheckClean);
-            work_flows.push(WorkFlow::CheckoutMergeBranch);
+            work_flows.push(WorkFlow::Pull);
             if let Some(_) = config.execute_branch {
                 work_flows.push(WorkFlow::CheckoutExecuteBranch);
             }
-            work_flows.push(WorkFlow::Merge);
-        }
-        Mode::Rebase => {
-            work_flows.push(WorkFlow::CheckClean);
-            work_flows.push(WorkFlow::CheckoutMergeBranch);
-            if let Some(_) = config.execute_branch {
-                work_flows.push(WorkFlow::CheckoutExecuteBranch);
+            match mode {
+                Mode::Merge => {
+                    work_flows.push(WorkFlow::Merge);
+                }
+                Mode::Rebase => {
+                    work_flows.push(WorkFlow::Rebase);
+                }
+                Mode::CherryPick => {
+                    work_flows.push(WorkFlow::CherryPick);
+                }
+                _ => (),
             }
-            work_flows.push(WorkFlow::Rebase);
-        }
-        Mode::CherryPick => {
-            work_flows.push(WorkFlow::CheckClean);
-            if let Some(_) = config.execute_branch {
-                work_flows.push(WorkFlow::CheckoutExecuteBranch);
-            }
-            work_flows.push(WorkFlow::CherryPick);
         }
         _ => (),
     }
     work_flows.push(WorkFlow::Add);
     work_flows.push(WorkFlow::Commit);
+    if let Mode::Commit = mode {
+        // 仅提交模式后置pull
+        work_flows.push(WorkFlow::Pull);
+    }
     if config.need_push {
         work_flows.push(WorkFlow::Push);
     }
