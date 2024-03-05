@@ -8,7 +8,7 @@ export default function MergeBranch() {
     const {
         projects,
         selectedProjects,
-        gitOperation: { isLoading },
+        gitOperation: { isLoading, mode },
     } = useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
@@ -17,7 +17,7 @@ export default function MergeBranch() {
             await invoke("git_workflow", {
                 payload: {
                     projects: selectedProjects,
-                    mode: "commit",
+                    mode,
                     config: {
                         needPush: false,
                         // executeBranch: "branch-3",
@@ -41,10 +41,21 @@ export default function MergeBranch() {
                     <div>
                         <RadioGroup
                             size="sm"
-                            label="install flag"
+                            label="模式"
                             orientation="horizontal"
+                            value={mode}
+                            onValueChange={(v) => {
+                                dispatch({
+                                    type: "gitOperation",
+                                    payload: {
+                                        mode: v,
+                                    },
+                                });
+                            }}
                         >
-                            <Radio value="merge">合并分支</Radio>
+                            <Radio value="commit">提交</Radio>
+                            <Radio value="merge">合并</Radio>
+                            <Radio value="cherryPick">樱桃采摘</Radio>
                             <Radio value="rebase">变基</Radio>
                         </RadioGroup>
                     </div>

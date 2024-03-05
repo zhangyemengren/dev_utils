@@ -1,7 +1,11 @@
 use rayon::prelude::*;
-use serde::Deserialize;
-use std::borrow::Borrow;
-use std::process::Command;
+use serde::{Deserialize, Serialize};
+use std::{borrow::Borrow, collections::HashMap, error::Error, process::Command};
+
+#[derive(Serialize, Debug)]
+pub struct GitResponse {
+    pub data: HashMap<String, Vec<StatusItem>>,
+}
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -30,22 +34,19 @@ pub struct Config {
     pub need_push: bool,
 }
 
-pub struct ExecutionResult {
-    work_flows: Vec<StatusItem>,
-}
-#[derive(Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct StatusItem {
     work_flow: WorkFlow,
     status: Status,
     message: String,
 }
-#[derive(Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub enum Status {
     Success,
     Failed,
     NotRunning,
 }
-#[derive(Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub enum WorkFlow {
     Add,
     Commit,
@@ -53,7 +54,7 @@ pub enum WorkFlow {
     // Checkout to master -> CheckSubmodule(git submodule && git submodule update) -> Pull -> Checkout to branch
     // ok -> CheckSubmodule -> Pull
     // fail -> Checkout -b
-    CheckoutExecuteBranch,
+    Checkout,
     Pull,
     Push,
     Merge,
@@ -68,11 +69,146 @@ impl WorkFlow {
             Self::Commit => Self::cmd_commit(path, config.commit_message.as_deref()),
             Self::Push => Self::cmd_push(path, config.execute_branch.as_deref()),
             Self::CheckClean => Self::cmd_check_clean(path),
-            _ => StatusItem {
-                work_flow: WorkFlow::Add,
-                status: Status::Success,
-                message: "".to_string(),
-            },
+            Self::Checkout => Self::cmd_checkout(path, config),
+            Self::Pull => Self::cmd_pull(path),
+            Self::Merge | Self::Rebase | Self::CherryPick => {
+                Self::cmd_merge(path, config, self.clone())
+            }
+        }
+    }
+    pub fn cmd_checkout(path: &str, config: &Config) -> StatusItem {
+        let status = Command::new("git")
+            .current_dir(path)
+            .args(["checkout", "master"])
+            .status()
+            .expect("failed to execute process");
+        if !status.success() {
+            return StatusItem {
+                work_flow: WorkFlow::Checkout,
+                status: Status::Failed,
+                message: "failed to checkout master".to_string(),
+            };
+        }
+        // 有些项目是submodule架构
+        if let Err(e) = Self::cmd_update_submodule(path) {
+            return StatusItem {
+                work_flow: WorkFlow::Checkout,
+                status: Status::Failed,
+                message: format!("failed to update submodule after checkout master: {}", e),
+            };
+        }
+
+        let item = Self::cmd_pull(path);
+        if let Status::Failed = item.status {
+            return StatusItem {
+                work_flow: WorkFlow::Checkout,
+                status: Status::Failed,
+                message: "failed to pull master".to_string(),
+            };
+        }
+        // checkout to branch
+        let the_branch = config.execute_branch.as_deref().unwrap();
+        let status = Command::new("git")
+            .current_dir(path)
+            .args(["checkout", the_branch])
+            .status()
+            .expect("failed to execute process");
+        if status.success() {
+            if let Err(e) = Self::cmd_update_submodule(path) {
+                return StatusItem {
+                    work_flow: WorkFlow::Checkout,
+                    status: Status::Failed,
+                    message: format!(
+                        "failed to update submodule after checkout execute branch: {}",
+                        e
+                    ),
+                };
+            }
+            let item = Self::cmd_pull(path);
+            if let Status::Failed = item.status {
+                return StatusItem {
+                    work_flow: WorkFlow::Checkout,
+                    status: Status::Failed,
+                    message: "failed to pull execute branch".to_string(),
+                };
+            }
+        } else {
+            let status = Command::new("git")
+                .current_dir(path)
+                .args(["checkout", "-b", the_branch])
+                .status()
+                .expect("failed to execute process");
+            if !status.success() {
+                return StatusItem {
+                    work_flow: WorkFlow::Checkout,
+                    status: Status::Failed,
+                    message: "failed to checkout new execute branch".to_string(),
+                };
+            }
+        }
+
+        StatusItem {
+            work_flow: WorkFlow::Checkout,
+            status: Status::Success,
+            message: "".to_string(),
+        }
+    }
+    pub fn cmd_update_submodule(path: &str) -> Result<(), Box<dyn Error>> {
+        let mut child = Command::new("git")
+            .current_dir(path)
+            .args(["submodule", "update"])
+            .spawn()?;
+        child.wait()?;
+        Ok(())
+    }
+    pub fn cmd_merge(path: &str, config: &Config, work_flow: WorkFlow) -> StatusItem {
+        let (k, v) = match work_flow {
+            WorkFlow::Merge => (
+                "merge",
+                config.execute_branch.as_deref().unwrap_or("master"),
+            ),
+            WorkFlow::Rebase => (
+                "rebase",
+                config.execute_branch.as_deref().unwrap_or("master"),
+            ),
+            WorkFlow::CherryPick => (
+                "cherry-pick",
+                config.cherry_pick_commit.as_deref().unwrap_or("HEAD"),
+            ),
+            _ => unreachable!(),
+        };
+
+        let status = Command::new("git")
+            .current_dir(path)
+            .args([k, v])
+            .status()
+            .expect("failed to execute process");
+        let status = if status.success() {
+            Status::Success
+        } else {
+            Status::Failed
+        };
+        StatusItem {
+            work_flow,
+            status,
+            message: "".to_string(),
+        }
+    }
+    pub fn cmd_pull(path: &str) -> StatusItem {
+        let status = Command::new("git")
+            .current_dir(path)
+            .args(["pull"])
+            .status()
+            .expect("failed to execute process");
+        let status = if status.success() {
+            Status::Success
+        } else {
+            Status::Failed
+        };
+        StatusItem {
+            work_flow: WorkFlow::Pull,
+            status,
+            message: "".to_string(),
         }
     }
     pub fn cmd_check_clean(path: &str) -> StatusItem {
@@ -157,7 +293,7 @@ where
             work_flows.push(WorkFlow::CheckClean);
             work_flows.push(WorkFlow::Pull);
             if let Some(_) = config.execute_branch {
-                work_flows.push(WorkFlow::CheckoutExecuteBranch);
+                work_flows.push(WorkFlow::Checkout);
             }
             match mode {
                 Mode::Merge => {
@@ -169,17 +305,16 @@ where
                 Mode::CherryPick => {
                     work_flows.push(WorkFlow::CherryPick);
                 }
-                _ => (),
+                Mode::Commit => {
+                    work_flows.push(WorkFlow::Add);
+                    work_flows.push(WorkFlow::Commit);
+                    work_flows.push(WorkFlow::Pull);
+                }
             }
         }
         _ => (),
     }
-    work_flows.push(WorkFlow::Add);
-    work_flows.push(WorkFlow::Commit);
-    if let Mode::Commit = mode {
-        // 仅提交模式后置pull
-        work_flows.push(WorkFlow::Pull);
-    }
+
     if config.need_push {
         work_flows.push(WorkFlow::Push);
     }
@@ -187,33 +322,44 @@ where
 }
 
 #[tauri::command]
-pub async fn git_workflow(payload: GitPayload) -> bool {
+pub async fn git_workflow(payload: GitPayload) -> GitResponse {
     let GitPayload {
         ref mode,
         ref config,
         ..
     } = payload;
 
-    payload.projects.par_iter().for_each(|p| {
-        let mut work_flows = get_workflow(mode, config)
-            .into_iter()
-            .map(|w| StatusItem{
-                work_flow: w,
-                status: Status::NotRunning,
-                message: "".to_string(),
-            })
-            .collect::<Vec<_>>();
-        for (i, w) in work_flows.iter_mut().enumerate() {
-            let result = w.work_flow.run(p, config);
-            let r = result.clone();
-            w.status = r.status;
-            w.message = r.message;
-            if let Status::Failed = w.status {
-                break;
+    let mut map = HashMap::new();
+
+    let work_flows: Vec<_> = payload
+        .projects
+        .par_iter()
+        .map(|p| {
+            let mut work_flows = get_workflow(mode, config)
+                .into_iter()
+                .map(|w| StatusItem {
+                    work_flow: w,
+                    status: Status::NotRunning,
+                    message: "".to_string(),
+                })
+                .collect::<Vec<_>>();
+            for w in work_flows.iter_mut() {
+                let result = w.work_flow.run(p, config);
+                let r = result.clone();
+                w.status = r.status;
+                w.message = r.message;
+                if let Status::Failed = w.status {
+                    break;
+                }
             }
-        }
-        println!("Checking clean in project: {:?}", work_flows);
+            println!("Checking clean in project: {:?}", work_flows);
+            (p.clone(), work_flows)
+        })
+        .collect();
+
+    work_flows.into_iter().for_each(|(k, v)| {
+        map.insert(k, v);
     });
 
-    true
+    GitResponse { data: map }
 }

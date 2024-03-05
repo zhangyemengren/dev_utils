@@ -18,10 +18,20 @@ pub fn get_dirs(url: String) -> Vec<Item> {
             let path = entry.path();
             let path_str = path.to_str().unwrap().to_string();
             if path.is_dir() {
-                dirs.push(Item {
-                    name: entry.file_name().to_str().unwrap().to_string(),
-                    path: path_str,
+                // has a .git file
+                let mut entries = fs::read_dir(&path).unwrap();
+                let has_git = entries.any(|entry| {
+                    let entry = entry.unwrap();
+                    let path = entry.path();
+                    let path_str = path.to_str().unwrap().to_string();
+                    path_str.ends_with(".git")
                 });
+                if has_git {
+                    dirs.push(Item {
+                        name: entry.file_name().to_str().unwrap().to_string(),
+                        path: path_str,
+                    });
+                }
             }
         }
     }

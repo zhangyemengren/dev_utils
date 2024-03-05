@@ -55,6 +55,7 @@ const initialState = {
     },
     gitOperation: {
         isLoading: false,
+        mode: "commit",
     },
 };
 function modelReducer(state, action) {
