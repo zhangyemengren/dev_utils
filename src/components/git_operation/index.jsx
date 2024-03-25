@@ -1,4 +1,4 @@
-import { Button, Divider, Radio, RadioGroup } from "@nextui-org/react";
+import { Button, Divider, Radio, RadioGroup, Checkbox } from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { DispatchContext, ModelContext } from "@/app/page";
 import { useContext } from "react";
@@ -8,18 +8,24 @@ export default function MergeBranch() {
     const {
         projects,
         selectedProjects,
-        gitOperation: { isLoading, mode },
+        gitOperation: { isLoading, mode, needPush },
     } = useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
     const submit = async () => {
         try {
-            await invoke("git_workflow", {
+            dispatch({
+                type: "gitOperation",
+                payload: {
+                    isLoading: true,
+                },
+            });
+            const data = await invoke("git_workflow", {
                 payload: {
                     projects: selectedProjects,
                     mode,
                     config: {
-                        needPush: false,
+                        needPush,
                         // executeBranch: "branch-3",
                         mergeBranch: undefined,
                         commitMessage: undefined,
@@ -27,8 +33,21 @@ export default function MergeBranch() {
                     },
                 },
             });
+            console.log(data);
+            dispatch({
+                type: "gitOperation",
+                payload: {
+                    isLoading: false,
+                },
+            });
         } catch (e) {
             console.error(e);
+            dispatch({
+                type: "gitOperation",
+                payload: {
+                    isLoading: false,
+                },
+            });
         }
     };
 
@@ -58,6 +77,22 @@ export default function MergeBranch() {
                             <Radio value="cherryPick">樱桃采摘</Radio>
                             <Radio value="rebase">变基</Radio>
                         </RadioGroup>
+                    </div>
+                    <div>
+                        <Checkbox
+                            size="sm"
+                            isSelected={needPush}
+                            onValueChange={(v) => {
+                                dispatch({
+                                    type: "gitOperation",
+                                    payload: {
+                                        needPush: v,
+                                    },
+                                });
+                            }}
+                        >
+                            推送远端
+                        </Checkbox>
                     </div>
                     <div>
                         <Button

@@ -305,14 +305,14 @@ where
                 Mode::CherryPick => {
                     work_flows.push(WorkFlow::CherryPick);
                 }
-                Mode::Commit => {
-                    work_flows.push(WorkFlow::Add);
-                    work_flows.push(WorkFlow::Commit);
-                    work_flows.push(WorkFlow::Pull);
-                }
+                _ => {}
             }
         }
-        _ => (),
+        Mode::Commit => {
+            work_flows.push(WorkFlow::Add);
+            work_flows.push(WorkFlow::Commit);
+            work_flows.push(WorkFlow::Pull);
+        }
     }
 
     if config.need_push {
@@ -343,6 +343,7 @@ pub async fn git_workflow(payload: GitPayload) -> GitResponse {
                     message: "".to_string(),
                 })
                 .collect::<Vec<_>>();
+            println!("work_flows: {:?} mode: {:?}", work_flows, mode);
             for w in work_flows.iter_mut() {
                 let result = w.work_flow.run(p, config);
                 let r = result.clone();
