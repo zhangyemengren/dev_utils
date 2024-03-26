@@ -8,7 +8,7 @@ export default function MergeBranch() {
     const {
         projects,
         selectedProjects,
-        gitOperation: { isLoading, mode, needPush },
+        gitOperation: { isLoading, mode, needPush, results },
     } = useContext(ModelContext);
     const dispatch = useContext(DispatchContext);
 
@@ -20,7 +20,7 @@ export default function MergeBranch() {
                     isLoading: true,
                 },
             });
-            const data = await invoke("git_workflow", {
+            const res = await invoke("git_workflow", {
                 payload: {
                     projects: selectedProjects,
                     mode,
@@ -33,11 +33,13 @@ export default function MergeBranch() {
                     },
                 },
             });
-            console.log(data);
+            const arr = Object.entries(res.data);
+            console.log(arr);
             dispatch({
                 type: "gitOperation",
                 payload: {
                     isLoading: false,
+                    results: arr,
                 },
             });
         } catch (e) {
@@ -54,7 +56,7 @@ export default function MergeBranch() {
     return (
         <div>
             <Workspace />
-            <Divider className="mt-4" />
+            <Divider className="my-4" />
             {projects.length > 0 && (
                 <div>
                     <div>
@@ -78,6 +80,7 @@ export default function MergeBranch() {
                             <Radio value="rebase">变基</Radio>
                         </RadioGroup>
                     </div>
+                    <Divider className="my-4" />
                     <div>
                         <Checkbox
                             size="sm"
@@ -94,6 +97,7 @@ export default function MergeBranch() {
                             推送远端
                         </Checkbox>
                     </div>
+                    <Divider className="my-4" />
                     <div>
                         <Button
                             onClick={submit}
@@ -106,6 +110,29 @@ export default function MergeBranch() {
                             执行
                         </Button>
                     </div>
+                    {
+                        results.length > 0 && results.map((item, index) => {
+                            return (
+                                <div key={index}>
+                                    <Divider className="my-4" />
+                                    <div>
+                                        <div>{item[0]}</div>
+                                        {
+                                            item[1].map((i, idx) => {
+                                                return (
+                                                    <div key={idx}>
+                                                        <div>{i.work_flow}</div>
+                                                        <div>{i.status}</div>
+                                                        <div>{i.message}</div>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            );
+                        })
+                    }
                 </div>
             )}
         </div>

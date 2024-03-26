@@ -1,6 +1,7 @@
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Borrow, collections::HashMap, error::Error, process::Command};
+use std::path::Path;
 
 #[derive(Serialize, Debug)]
 pub struct GitResponse {
@@ -354,7 +355,7 @@ pub async fn git_workflow(payload: GitPayload) -> GitResponse {
                 }
             }
             println!("Checking clean in project: {:?}", work_flows);
-            (p.clone(), work_flows)
+            (Path::new(&p).file_name().unwrap().to_str().unwrap().to_string(), work_flows)
         })
         .collect();
 

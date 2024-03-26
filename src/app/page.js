@@ -57,6 +57,7 @@ const initialState = {
         isLoading: false,
         mode: "commit",
         needPush: false,
+        results: [],
     },
 };
 function modelReducer(state, action) {
